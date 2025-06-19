@@ -1,0 +1,2 @@
+This was an interesting first assignment for me. I have tried Dave Churchill's course before and last time you didn't jump into ImGui immediately. Going through its demo window was pretty fun. I tried to code this out like I was a student of Dave's so I followed some of his methods like the way he reads files.
+SFML has also changed a lot since I last tried and it was nice reading through its documentation again.
