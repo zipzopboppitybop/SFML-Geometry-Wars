@@ -151,6 +151,32 @@ void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
 void Game::sMovement()
 {
 	//TODO implement all entity movement
+	auto& playerInput = player()->get<CInput>();
+	auto& playerMovement = player()->get<CTransform>();
+
+	playerMovement.velocity.x = 0; 
+	playerMovement.velocity.y = 0;
+
+	if (playerInput.right == true)
+	{
+		playerMovement.velocity.x = mPlayerConfig.S;
+	}
+
+	if (playerInput.left == true)
+	{
+		playerMovement.velocity.x = -mPlayerConfig.S;
+	}
+
+	if (playerInput.up == true)
+	{
+		playerMovement.velocity.y = -mPlayerConfig.S;
+	}
+
+	if (playerInput.down == true)
+	{
+		playerMovement.velocity.y = mPlayerConfig.S;
+	}
+
 	for (auto& entity : mEntities.getEntities())
 	{
 		if (entity->isActive())
@@ -231,10 +257,52 @@ void Game::sUserInput()
 		}
 		else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 		{
+			if (keyPressed->scancode == sf::Keyboard::Scancode::D)
+			{
+				player()->get<CInput>().right = true;
+			}
+
+			if (keyPressed->scancode == sf::Keyboard::Scancode::A)
+			{
+				player()->get<CInput>().left = true;
+			}
+
+			if (keyPressed->scancode == sf::Keyboard::Scancode::W)
+			{
+				player()->get<CInput>().up = true;
+			}
+
+			if (keyPressed->scancode == sf::Keyboard::Scancode::S)
+			{
+				player()->get<CInput>().down = true;
+			}
+
 			if (keyPressed->scancode == sf::Keyboard::Scancode::Space)
 			{
 				Vec2f mousePos(sf::Mouse::getPosition(mWindow).x, sf::Mouse::getPosition(mWindow).y);
 				spawnBullet(player(), mousePos);
+			}
+		}
+		else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
+		{
+			if (keyReleased->scancode == sf::Keyboard::Scancode::D)
+			{
+				player()->get<CInput>().right = false;
+			}
+
+			if (keyReleased->scancode == sf::Keyboard::Scancode::A)
+			{
+				player()->get<CInput>().left = false;
+			}
+
+			if (keyReleased->scancode == sf::Keyboard::Scancode::W)
+			{
+				player()->get<CInput>().up = false;
+			}
+
+			if (keyReleased->scancode == sf::Keyboard::Scancode::S)
+			{
+				player()->get<CInput>().down = false;
 			}
 		}
 	}
