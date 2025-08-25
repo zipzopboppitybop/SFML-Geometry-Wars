@@ -38,12 +38,10 @@ void Game::init(const std::string& config)
 			myFileStream >> mPlayerConfig.SR >> mPlayerConfig.CR >> mPlayerConfig.S >> mPlayerConfig.FR >> mPlayerConfig.FG >> mPlayerConfig.FB >> mPlayerConfig.OR >> mPlayerConfig.OG >> mPlayerConfig.OB >> mPlayerConfig.OT >> mPlayerConfig.V;
 		}
 
-		//if (temp == "Rectangle")
-		//{
-		//	myFileStream >> shapeName >> shapeX >> shapeY >> shapeXSpeed >> shapeYSpeed >> shapeR >> shapeG >> shapeB >> shapeWidth >> shapeHeight;
-		//	Shape shape(shapeName, shapeX, shapeY, shapeXSpeed, shapeYSpeed, shapeR, shapeG, shapeB, shapeWidth, shapeHeight);
-		//	shapes.push_back(shape);
-		//}
+		if (temp == "Enemy")
+		{
+			myFileStream >> mEnemyConfig.SR >> mEnemyConfig.CR >> mEnemyConfig.SMIN >> mEnemyConfig.SMAX >> mEnemyConfig.OR >> mEnemyConfig.OG >> mEnemyConfig.OB >> mEnemyConfig.OT >> mEnemyConfig.VMIN >> mEnemyConfig.VMAX >> mEnemyConfig.L >> mEnemyConfig.SI;
+		}
 	}
 
 
@@ -113,6 +111,12 @@ void Game::spawnPlayer()
 void Game::spawnEnemy()
 {
 	// TODO Make enemy spawn with config and in bounds of window
+	auto entity = mEntities.addEntity("enemy");
+
+	entity->add<CTransform>(Vec2f(200.0f, 200.0f), Vec2f(0, 0), 0.0f);
+
+	entity->add<CShape>(mEnemyConfig.SR, 3, sf::Color(255, 255, 255), sf::Color(mEnemyConfig.OR, mEnemyConfig.OG, mEnemyConfig.OB), mEnemyConfig.OT);
+
 	mLastEnemySpawnTime = mCurrentFrame;
 }
 
@@ -163,6 +167,13 @@ void Game::sCollision()
 void Game::sEnemySpawner()
 {
 	// TODO implement spawning
+	
+	if (mCurrentFrame - mLastEnemySpawnTime == mEnemyConfig.SI)
+	{
+		spawnEnemy();
+	}
+	
+
 }
 
 void Game::sGUI()
@@ -180,14 +191,20 @@ void Game::sRender()
 
 	mWindow.clear();
 
-	auto p = player();
-	if (p && p->isActive())
+	for (auto& entity : mEntities.getEntities())
 	{
-		p->get<CShape>().circle.setPosition(p->get<CTransform>().pos);
-		p->get<CTransform>().angle += 1.0f;
-		p->get<CShape>().circle.setRotation(sf::degrees(p->get<CTransform>().angle));
-		mWindow.draw(p->get<CShape>().circle);
+		if (!entity->isActive()) continue;
+
+		auto& transform = entity->get<CTransform>();
+		auto& shape = entity->get<CShape>();
+
+		shape.circle.setPosition(transform.pos);
+		transform.angle += 1.0f;
+		shape.circle.setRotation(sf::degrees(transform.angle));
+
+		mWindow.draw(shape.circle);
 	}
+
 
 	ImGui::SFML::Render(mWindow);
 
