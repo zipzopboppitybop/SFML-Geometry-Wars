@@ -28,10 +28,10 @@ void Game::init(const std::string& config)
 			myFileStream >> mWindowConfig.W >> mWindowConfig.H >> mWindowConfig.FL >> mWindowConfig.FS;
 		}
 
-		//if (temp == "Font")
-		//{
-		//	myFileStream >> fontFilename >> fontSize >> fontR >> fontG >> fontB;
-		//}
+		if (temp == "Font")
+		{
+			myFileStream >> mFontConfig.FF >> mFontConfig.FS >> mFontConfig.FR >> mFontConfig.FG >> mFontConfig.FB;
+		}
 
 		//// Shapes create a custom shape class to be stored in shapes vector
 		//if (temp == "Circle")
@@ -50,14 +50,14 @@ void Game::init(const std::string& config)
 	}
 
 
-	if (!mFont.openFromFile("fonts/Roboto-Regular.ttf"))
+	if (!mFont.openFromFile(mFontConfig.FF))
 	{
 		std::cerr << "Failed to load font!\n";
 	}
 
 	mText.setFont(mFont);
-	mText.setCharacterSize(24);
-	mText.setFillColor(sf::Color::White);
+	mText.setCharacterSize(mFontConfig.FS);
+	mText.setFillColor(sf::Color(mFontConfig.FR, mFontConfig.FG, mFontConfig.FB) );
 	mText.setString("Score: 0");
 
 	mWindow.create(sf::VideoMode({ mWindowConfig.W, mWindowConfig.H }), "Geometry Wars!");
