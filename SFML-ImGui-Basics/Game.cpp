@@ -42,6 +42,11 @@ void Game::init(const std::string& config)
 		{
 			myFileStream >> mEnemyConfig.SR >> mEnemyConfig.CR >> mEnemyConfig.SMIN >> mEnemyConfig.SMAX >> mEnemyConfig.OR >> mEnemyConfig.OG >> mEnemyConfig.OB >> mEnemyConfig.OT >> mEnemyConfig.VMIN >> mEnemyConfig.VMAX >> mEnemyConfig.L >> mEnemyConfig.SI;
 		}
+
+		if (temp == "Bullet")
+		{
+			myFileStream >> mBulletConfig.SR >> mBulletConfig.CR >> mBulletConfig.S >> mBulletConfig.FR >> mBulletConfig.FG >> mBulletConfig.FB >> mBulletConfig.OR >> mBulletConfig.OG >> mBulletConfig.OB >> mBulletConfig.OT >> mBulletConfig.V >> mBulletConfig.L;
+		}
 	}
 
 
@@ -131,6 +136,11 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& target)
 {
 	// spawn bullet that goes towards mouse position from player position
+	auto bullet = mEntities.addEntity("bullet");
+
+	bullet->add<CTransform>(Vec2f(entity->get<CTransform>().pos.x, entity->get<CTransform>().pos.y), Vec2f(0, 0), 0.0f);
+
+	bullet->add<CShape>(mBulletConfig.SR, mBulletConfig.V, sf::Color(mBulletConfig.FR, mBulletConfig.FG, mBulletConfig.FB), sf::Color(mBulletConfig.OR, mBulletConfig.OG, mBulletConfig.OB), mBulletConfig.OT);
 }
 
 void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
@@ -222,7 +232,10 @@ void Game::sUserInput()
 		else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 		{
 			if (keyPressed->scancode == sf::Keyboard::Scancode::Space)
-				player()->destroy();
+			{
+				Vec2f mousePos(sf::Mouse::getPosition(mWindow).x, sf::Mouse::getPosition(mWindow).y);
+				spawnBullet(player(), mousePos);
+			}
 		}
 	}
 }
