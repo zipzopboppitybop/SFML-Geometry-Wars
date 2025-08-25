@@ -35,7 +35,11 @@ void Game::init(const std::string& config)
 std::shared_ptr<Entity> Game::player()
 {
 	auto& players = mEntities.getEntities("player");
-	return players.front();
+	if (!players.empty())
+	{
+		return players.front();
+	}
+	return nullptr;  // or throw, or handle "no player" case as you prefer
 }
 
 void Game::run()
@@ -97,9 +101,15 @@ void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
 void Game::sMovement()
 {
 	//TODO implement all entity movement
-	auto& transform = player()->get<CTransform>();
-	transform.pos.x += transform.velocity.x;
-	transform.pos.y += transform.velocity.y;
+	for (auto& entity : mEntities.getEntities())
+	{
+		if (entity->isActive())
+		{
+			auto& transform = entity->get<CTransform>();
+			transform.pos.x += transform.velocity.x;
+			transform.pos.y += transform.velocity.y;
+		}
+	}
 }
 
 void Game::sLifespan()
@@ -134,11 +144,14 @@ void Game::sRender()
 
 	mWindow.clear();
 
-	player()->get<CShape>().circle.setPosition(player()->get<CTransform>().pos);
-
-	player()->get<CTransform>().angle += 1.0f;
-
-	player()->get<CShape>().circle.setRotation(sf::degrees(player()->get<CTransform>().angle));
+	auto p = player();
+	if (p && p->isActive())
+	{
+		p->get<CShape>().circle.setPosition(p->get<CTransform>().pos);
+		p->get<CTransform>().angle += 1.0f;
+		p->get<CShape>().circle.setRotation(sf::degrees(p->get<CTransform>().angle));
+		mWindow.draw(p->get<CShape>().circle);
+	}
 
 	mWindow.draw(player()->get<CShape>().circle);
 
@@ -157,8 +170,8 @@ void Game::sUserInput()
 		}
 		else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 		{
-			if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
-				mWindow.close();
+			if (keyPressed->scancode == sf::Keyboard::Scancode::Space)
+				player()->destroy();
 		}
 	}
 }

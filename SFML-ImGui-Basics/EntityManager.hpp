@@ -14,7 +14,17 @@ class EntityManager
 
 	void removeDeadEntities(EntityVec& vec)
 	{
-
+		for (size_t i = 0; i < vec.size(); )
+		{
+			if (!vec[i]->isActive())
+			{
+				vec.erase(vec.begin() + i);
+			}
+			else
+			{
+				++i;
+			}
+		}
 	}
 
 public:
@@ -23,7 +33,12 @@ public:
 
 	void update()
 	{
-		// TODO add entities from entities to add to the vector of all entities and the vector in the map with the tag as key
+		for (auto& entity : mEntitiesToAdd)
+		{
+			mEntities.push_back(entity);
+			mEntityMap[entity->mTag].push_back(entity);
+		}
+		mEntitiesToAdd.clear();
 
 		removeDeadEntities(mEntities);
 
@@ -33,14 +48,12 @@ public:
 		}
 	}
 
+
 	std::shared_ptr<Entity> addEntity(const std::string& tag)
 	{
 		auto entity = std::shared_ptr<Entity>(new Entity(mTotalEntities++, tag));
 
 		mEntitiesToAdd.push_back(entity);
-
-		if (mEntityMap.find(tag) == mEntityMap.end()) { mEntityMap[tag] = EntityVec(); }
-		mEntityMap[tag].push_back(entity);
 
 		return entity;
 	}
