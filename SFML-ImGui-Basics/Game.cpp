@@ -15,6 +15,41 @@ void Game::init(const std::string& config)
 	std::ifstream myFileStream("config.txt");
 	std::string temp;
 
+	if (!myFileStream)
+	{
+		std::cout << "Error: Unable to open file for reading.\n";
+		return;
+	}
+
+	while (myFileStream >> temp)
+	{
+		if (temp == "Window")
+		{
+			myFileStream >> mWindowConfig.W >> mWindowConfig.H >> mWindowConfig.FL >> mWindowConfig.FS;
+		}
+
+		//if (temp == "Font")
+		//{
+		//	myFileStream >> fontFilename >> fontSize >> fontR >> fontG >> fontB;
+		//}
+
+		//// Shapes create a custom shape class to be stored in shapes vector
+		//if (temp == "Circle")
+		//{
+		//	myFileStream >> shapeName >> shapeX >> shapeY >> shapeXSpeed >> shapeYSpeed >> shapeR >> shapeG >> shapeB >> shapeRadius;
+		//	Shape shape(shapeName, shapeX, shapeY, shapeXSpeed, shapeYSpeed, shapeR, shapeG, shapeB, shapeRadius);
+		//	shapes.push_back(shape);
+		//}
+
+		//if (temp == "Rectangle")
+		//{
+		//	myFileStream >> shapeName >> shapeX >> shapeY >> shapeXSpeed >> shapeYSpeed >> shapeR >> shapeG >> shapeB >> shapeWidth >> shapeHeight;
+		//	Shape shape(shapeName, shapeX, shapeY, shapeXSpeed, shapeYSpeed, shapeR, shapeG, shapeB, shapeWidth, shapeHeight);
+		//	shapes.push_back(shape);
+		//}
+	}
+
+
 	if (!mFont.openFromFile("fonts/Roboto-Regular.ttf"))
 	{
 		std::cerr << "Failed to load font!\n";
@@ -25,8 +60,8 @@ void Game::init(const std::string& config)
 	mText.setFillColor(sf::Color::White);
 	mText.setString("Score: 0");
 
-	mWindow.create(sf::VideoMode({ 1280, 720 }), "Geometry Wars!");
-	mWindow.setFramerateLimit(60);
+	mWindow.create(sf::VideoMode({ mWindowConfig.W, mWindowConfig.H }), "Geometry Wars!");
+	mWindow.setFramerateLimit(mWindowConfig.FL);
 
 	ImGui::SFML::Init(mWindow);
 
@@ -50,7 +85,7 @@ void Game::run()
 {
 	// TODO make it so some systems work while paused
 
-	while (mRunning)
+	while (mRunning && mWindow.isOpen())
 	{
 		mEntities.update();
 
@@ -156,8 +191,6 @@ void Game::sRender()
 		p->get<CShape>().circle.setRotation(sf::degrees(p->get<CTransform>().angle));
 		mWindow.draw(p->get<CShape>().circle);
 	}
-
-	mWindow.draw(player()->get<CShape>().circle);
 
 	ImGui::SFML::Render(mWindow);
 
