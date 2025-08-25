@@ -11,6 +11,10 @@ void Game::init(const std::string& config)
 {
 	//TODO read in config files
 
+	// Read config file
+	std::ifstream myFileStream("config.txt");
+	std::string temp;
+
 	if (!mFont.openFromFile("fonts/Roboto-Regular.ttf"))
 	{
 		std::cerr << "Failed to load font!\n";
@@ -39,7 +43,7 @@ std::shared_ptr<Entity> Game::player()
 	{
 		return players.front();
 	}
-	return nullptr;  // or throw, or handle "no player" case as you prefer
+	return nullptr;  
 }
 
 void Game::run()
