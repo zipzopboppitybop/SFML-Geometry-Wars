@@ -81,6 +81,12 @@ std::shared_ptr<Entity> Game::player()
 	return nullptr;  
 }
 
+void Game::setPaused(bool paused)
+{
+	mPaused = !mPaused;
+	std::cout << mPaused << std::endl;
+}
+
 void Game::run()
 {
 	// TODO make it so some systems work while paused
@@ -91,14 +97,18 @@ void Game::run()
 
 		ImGui::SFML::Update(mWindow, mDeltaClock.restart());
 
+		if (!mPaused)
+		{
 		sMovement();
-		sUserInput();
 		sEnemySpawner();
 		sCollision();
+		mCurrentFrame++;
+		}
+
+
 		sGUI();
 		sRender();
-
-		mCurrentFrame++;
+		sUserInput();
 
 		if (player() == nullptr)
 		{
@@ -340,52 +350,48 @@ void Game::sUserInput()
 		}
 		else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 		{
-			if (keyPressed->scancode == sf::Keyboard::Scancode::D)
-			{
-				player()->get<CInput>().right = true;
-			}
+			auto& playerInput = player()->get<CInput>();
 
-			if (keyPressed->scancode == sf::Keyboard::Scancode::A)
+			switch (keyPressed->scancode)
 			{
-				player()->get<CInput>().left = true;
-			}
-
-			if (keyPressed->scancode == sf::Keyboard::Scancode::W)
-			{
-				player()->get<CInput>().up = true;
-			}
-
-			if (keyPressed->scancode == sf::Keyboard::Scancode::S)
-			{
-				player()->get<CInput>().down = true;
-			}
-
-			if (keyPressed->scancode == sf::Keyboard::Scancode::Space)
-			{
-				Vec2f mousePos(sf::Mouse::getPosition(mWindow).x, sf::Mouse::getPosition(mWindow).y);
-				spawnBullet(player(), mousePos);
+			case sf::Keyboard::Scancode::D:
+				playerInput.right = true;
+				break;
+			case sf::Keyboard::Scancode::A:
+				playerInput.left = true;
+				break;
+			case sf::Keyboard::Scancode::W:
+				playerInput.up = true;
+				break;
+			case sf::Keyboard::Scancode::S:
+				playerInput.down = true;
+				break;
+			case sf::Keyboard::Scancode::Space:
+				setPaused(mPaused);
+			default:
+				break;
 			}
 		}
 		else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
 		{
-			if (keyReleased->scancode == sf::Keyboard::Scancode::D)
-			{
-				player()->get<CInput>().right = false;
-			}
+			auto& playerInput = player()->get<CInput>();
 
-			if (keyReleased->scancode == sf::Keyboard::Scancode::A)
+			switch (keyReleased->scancode)
 			{
-				player()->get<CInput>().left = false;
-			}
-
-			if (keyReleased->scancode == sf::Keyboard::Scancode::W)
-			{
-				player()->get<CInput>().up = false;
-			}
-
-			if (keyReleased->scancode == sf::Keyboard::Scancode::S)
-			{
-				player()->get<CInput>().down = false;
+			case sf::Keyboard::Scancode::D:
+				playerInput.right = false;
+				break;
+			case sf::Keyboard::Scancode::A:
+				playerInput.left = false;
+				break;
+			case sf::Keyboard::Scancode::W:
+				playerInput.up = false;
+				break;
+			case sf::Keyboard::Scancode::S:
+				playerInput.down = false;
+				break;
+			default:
+				break;
 			}
 		}
 	}
