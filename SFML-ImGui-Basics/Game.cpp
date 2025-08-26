@@ -162,7 +162,27 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
 	// spawn number of enemies that equal the vertices of the destroyed enemy
 	// small enemy should be same color and half the size
 	// small enemies are worth double points
-	std::cout << "My father was destroyed!" << std::endl;
+
+	auto entityShape = entity->get<CShape>().circle;
+
+	
+	for (size_t i = 0; i < entityShape.getPointCount(); i++)
+	{
+		auto smallEnemy = mEntities.addEntity("enemy");
+		auto entityPos = entity->get<CTransform>().pos;
+		float angle = (360.0f / entityShape.getPointCount()) * i;
+		float rad = angle * (3.14159265358979323846 / 180.0f);
+		Vec2f dir(std::cos(rad), std::sin(rad));
+		Vec2f velocity = dir * 2.0f;
+
+		smallEnemy->add<CTransform>(entityPos, velocity, angle);
+
+		smallEnemy->add<CCollision>(mEnemyConfig.CR/ 2);
+
+		smallEnemy->add<CShape>(mEnemyConfig.SR / 2, entityShape.getPointCount(), sf::Color(entityShape.getFillColor()), sf::Color(entityShape.getOutlineColor()), entityShape.getOutlineThickness());
+
+		smallEnemy->add<CLifespan>(mEnemyConfig.L);
+	}
 }
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& target)
@@ -236,9 +256,6 @@ void Game::sMovement()
 
 void Game::sLifespan()
 {
-	//TODO implement lifespan for all entities
-	// if entity has lifespand reduce it by one
-	// if no lifespan destroy it
 	for (auto& entity : mEntities.getEntities())
 	{
 		if (entity->has<CLifespan>())
@@ -282,7 +299,12 @@ void Game::sCollision()
 			if (dist < bullet->get<CCollision>().radius + enemy->get<CCollision>().radius)
 			{
 				bullet->destroy();
-				spawnSmallEnemies(enemy);
+
+				if (enemy->get<CCollision>().radius == mEnemyConfig.CR)
+				{
+					spawnSmallEnemies(enemy);
+				}
+
 				enemy->destroy();
 			}
 		}
@@ -307,6 +329,11 @@ void Game::sCollision()
 
 		if (dist < collisionRadius + playerCollsionRadius)
 		{
+			if (entity->get<CCollision>().radius == mEnemyConfig.CR)
+			{
+				spawnSmallEnemies(entity);
+			}
+
 			entity->destroy();
 			player()->destroy();
 		}
