@@ -141,7 +141,7 @@ void Game::spawnEnemy()
 	float randomY = distY(rng);
 	float randomSpeedX = distSpeed(rng);
 	float randomSpeedY = distSpeed(rng);
-	float randomVertices = distVertices(rng);
+	int randomVertices = distVertices(rng);
 	float randomR = distR(rng);
 	float randomG = distG(rng);
 	float randomB = distB(rng);
@@ -153,16 +153,13 @@ void Game::spawnEnemy()
 
 	entity->add<CShape>(mEnemyConfig.SR, randomVertices, sf::Color(randomR, randomG, randomB), sf::Color(mEnemyConfig.OR, mEnemyConfig.OG, mEnemyConfig.OB), mEnemyConfig.OT);
 
+	entity->add<CScore>(randomVertices * 100);
+
 	mLastEnemySpawnTime = mCurrentFrame;
 }
 
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
 {
-	// TODO spawn small enemies at location of destroyed enemy
-	// spawn number of enemies that equal the vertices of the destroyed enemy
-	// small enemy should be same color and half the size
-	// small enemies are worth double points
-
 	auto entityShape = entity->get<CShape>().circle;
 
 	
@@ -182,6 +179,8 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
 		smallEnemy->add<CShape>(mEnemyConfig.SR / 2, entityShape.getPointCount(), sf::Color(entityShape.getFillColor()), sf::Color(entityShape.getOutlineColor()), entityShape.getOutlineThickness());
 
 		smallEnemy->add<CLifespan>(mEnemyConfig.L);
+
+		smallEnemy->add<CScore>(entityShape.getPointCount() * 200);
 	}
 }
 
@@ -305,6 +304,12 @@ void Game::sCollision()
 					spawnSmallEnemies(enemy);
 				}
 
+				mScore += enemy->get<CScore>().score;
+
+				std::ostringstream oss;
+				oss << "Score: " << mScore;
+				mText.setString(oss.str());
+
 				enemy->destroy();
 			}
 		}
@@ -363,8 +368,6 @@ void Game::sRender()
 
 	for (auto& entity : mEntities.getEntities())
 	{
-		if (!entity->isActive()) continue;
-
 		auto& transform = entity->get<CTransform>();
 		auto& shape = entity->get<CShape>();
 
@@ -377,6 +380,7 @@ void Game::sRender()
 
 	ImGui::SFML::Render(mWindow);
 
+	mWindow.draw(mText);
 	mWindow.display();
 }
 
@@ -384,11 +388,18 @@ void Game::sUserInput()
 {
 	while (const std::optional event = mWindow.pollEvent())
 	{
+		ImGui::SFML::ProcessEvent(mWindow,*event);
+
 		if (event->is<sf::Event::Closed>())
 		{
 			mWindow.close();
 		}
 
+		if (ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard)
+		{
+			continue;
+		}
+			
 		if (!player())
 		{
 			return;
