@@ -97,9 +97,12 @@ void Game::run()
 			{
 				sMovement();
 			}
+			if (mLifespan)
+			{
+				sLifespan();
+			}
 		sEnemySpawner();
 		sCollision();
-		sLifespan();
 		mCurrentFrame++;
 		}
 
@@ -365,6 +368,7 @@ void Game::sGUI()
 		if (ImGui::BeginTabItem("Systems"))
 		{
 			ImGui::Checkbox("Movement", &mMovement);
+			ImGui::Checkbox("Lifespan", &mLifespan);
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Entities"))

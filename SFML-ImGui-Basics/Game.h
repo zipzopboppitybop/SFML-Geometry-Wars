@@ -34,6 +34,7 @@ class Game
 	bool mPaused = false;
 	bool mRunning = true;
 	bool mMovement = true;
+	bool mLifespan = true;
 	std::mt19937 rng{ std::random_device{}() };
 
 	void init(const std::string& config);
