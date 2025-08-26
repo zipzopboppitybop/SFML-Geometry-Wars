@@ -108,6 +108,8 @@ void Game::spawnPlayer()
 
 	entity->add<CTransform>(Vec2f(mWindow.getSize().x / 2, mWindow.getSize().y / 2), Vec2f(0, 0), 0.0f);
 
+	entity->add<CCollision>(mPlayerConfig.CR);
+
 	entity->add<CShape>(mPlayerConfig.SR, mPlayerConfig.V, sf::Color(mPlayerConfig.FR, mPlayerConfig.FG, mPlayerConfig.FB), sf::Color(mPlayerConfig.OR, mPlayerConfig.OG, mPlayerConfig.OB), mPlayerConfig.OT);
 
 	entity->add<CInput>();
@@ -138,6 +140,8 @@ void Game::spawnEnemy()
 
 	entity->add<CTransform>(Vec2f(randomX, randomY), Vec2f(randomSpeedX, randomSpeedY), 0.0f);
 
+	entity->add<CCollision>(mEnemyConfig.CR);
+
 	entity->add<CShape>(mEnemyConfig.SR, randomVertices, sf::Color(randomR, randomG, randomB), sf::Color(mEnemyConfig.OR, mEnemyConfig.OG, mEnemyConfig.OB), mEnemyConfig.OT);
 
 	mLastEnemySpawnTime = mCurrentFrame;
@@ -156,7 +160,9 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& target)
 	// spawn bullet that goes towards mouse position from player position
 	auto bullet = mEntities.addEntity("bullet"); 
 
-	bullet->add<CTransform>(Vec2f(entity->get<CTransform>().pos.x, entity->get<CTransform>().pos.y), Vec2f(0, 0), 0.0f);
+	bullet->add<CTransform>(Vec2f(entity->get<CTransform>().pos.x, entity->get<CTransform>().pos.y), Vec2f(5, 0), 0.0f);
+
+	bullet->add<CCollision>(mBulletConfig.CR);
 
 	bullet->add<CShape>(mBulletConfig.SR, mBulletConfig.V, sf::Color(mBulletConfig.FR, mBulletConfig.FG, mBulletConfig.FB), sf::Color(mBulletConfig.OR, mBulletConfig.OG, mBulletConfig.OB), mBulletConfig.OT);
 }
@@ -171,26 +177,28 @@ void Game::sMovement()
 	//TODO implement all entity movement
 	auto& playerInput = player()->get<CInput>();
 	auto& playerMovement = player()->get<CTransform>();
+	auto& playerCollisionRadius = player()->get<CCollision>().radius;
+	auto windowSize = mWindow.getSize();
 
 	playerMovement.velocity.x = 0; 
 	playerMovement.velocity.y = 0;
 
-	if (playerInput.right == true)
+	if (playerInput.right == true && playerMovement.pos.x + playerCollisionRadius < windowSize.x)
 	{
 		playerMovement.velocity.x = mPlayerConfig.S;
 	}
 
-	if (playerInput.left == true)
+	if (playerInput.left == true && playerMovement.pos.x - playerCollisionRadius > 0)
 	{
 		playerMovement.velocity.x = -mPlayerConfig.S;
 	}
 
-	if (playerInput.up == true)
+	if (playerInput.up == true && playerMovement.pos.y - playerCollisionRadius > 0)
 	{
 		playerMovement.velocity.y = -mPlayerConfig.S;
 	}
 
-	if (playerInput.down == true)
+	if (playerInput.down == true && playerMovement.pos.y + playerCollisionRadius < windowSize.y)
 	{
 		playerMovement.velocity.y = mPlayerConfig.S;
 	}
@@ -216,6 +224,31 @@ void Game::sLifespan()
 void Game::sCollision()
 {
 	// Implement all collision
+	auto windowSize = mWindow.getSize();
+
+	for (auto& entity : mEntities.getEntities())
+	{
+		auto& transform = entity->get<CTransform>();
+		auto collisionRadius = entity->get<CCollision>().radius;
+
+		if (entity->isActive())
+		{
+			if (entity->tag() == "enemy")
+			{
+				if (transform.pos.x - collisionRadius < 0 || transform.pos.x + collisionRadius > windowSize.x)
+				{
+					transform.velocity.x *= -1;
+				}
+
+				if (transform.pos.y - collisionRadius < 0 || transform.pos.y + collisionRadius > windowSize.y)
+				{
+					transform.velocity.y *= -1;
+				}
+			}
+
+
+		}
+	}
 }
 
 void Game::sEnemySpawner()
