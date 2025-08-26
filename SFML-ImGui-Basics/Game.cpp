@@ -119,6 +119,10 @@ void Game::spawnEnemy()
 	std::uniform_real_distribution<float> distX(0.0f, static_cast<float>(mWindow.getSize().x));
 	std::uniform_real_distribution<float> distY(0.0f, static_cast<float>(mWindow.getSize().y));
 	std::uniform_real_distribution<float> distSpeed(mEnemyConfig.SMIN, mEnemyConfig.SMAX);
+	std::uniform_real_distribution<float> distVertices(mEnemyConfig.VMIN, mEnemyConfig.VMAX);
+	std::uniform_real_distribution<float> distR(0.0f, 255.0f); 
+	std::uniform_real_distribution<float> distG(0.0f, 255.0f);
+	std::uniform_real_distribution<float> distB(0.0f, 255.0f);
 
 	auto entity = mEntities.addEntity("enemy");
 
@@ -126,10 +130,15 @@ void Game::spawnEnemy()
 	float randomY = distY(rng);
 	float randomSpeedX = distSpeed(rng);
 	float randomSpeedY = distSpeed(rng);
+	float randomVertices = distVertices(rng);
+	float randomR = distR(rng);
+	float randomG = distG(rng);
+	float randomB = distB(rng);
+
 
 	entity->add<CTransform>(Vec2f(randomX, randomY), Vec2f(randomSpeedX, randomSpeedY), 0.0f);
 
-	entity->add<CShape>(mEnemyConfig.SR, 3, sf::Color(255, 255, 255), sf::Color(mEnemyConfig.OR, mEnemyConfig.OG, mEnemyConfig.OB), mEnemyConfig.OT);
+	entity->add<CShape>(mEnemyConfig.SR, randomVertices, sf::Color(randomR, randomG, randomB), sf::Color(mEnemyConfig.OR, mEnemyConfig.OG, mEnemyConfig.OB), mEnemyConfig.OT);
 
 	mLastEnemySpawnTime = mCurrentFrame;
 }
