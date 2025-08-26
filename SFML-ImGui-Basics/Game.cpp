@@ -118,7 +118,10 @@ void Game::spawnEnemy()
 	// TODO Make enemy spawn with config and in bounds of window
 	auto entity = mEntities.addEntity("enemy");
 
-	entity->add<CTransform>(Vec2f(200.0f, 200.0f), Vec2f(0, 0), 0.0f);
+	int randomX = rand() % mWindow.getSize().x;
+	int randomY = rand() % mWindow.getSize().y;
+
+	entity->add<CTransform>(Vec2f(randomX, randomY), Vec2f(0, 0), 0.0f);
 
 	entity->add<CShape>(mEnemyConfig.SR, 3, sf::Color(255, 255, 255), sf::Color(mEnemyConfig.OR, mEnemyConfig.OG, mEnemyConfig.OB), mEnemyConfig.OT);
 
@@ -136,7 +139,7 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& target)
 {
 	// spawn bullet that goes towards mouse position from player position
-	auto bullet = mEntities.addEntity("bullet");
+	auto bullet = mEntities.addEntity("bullet"); 
 
 	bullet->add<CTransform>(Vec2f(entity->get<CTransform>().pos.x, entity->get<CTransform>().pos.y), Vec2f(0, 0), 0.0f);
 
