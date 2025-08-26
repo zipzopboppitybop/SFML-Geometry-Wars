@@ -9,9 +9,6 @@ Game::Game(const std::string& config) : mText(mFont)
 
 void Game::init(const std::string& config)
 {
-	//TODO read in config files
-
-	// Read config file
 	std::ifstream myFileStream("config.txt");
 	std::string temp;
 
@@ -84,13 +81,10 @@ std::shared_ptr<Entity> Game::player()
 void Game::setPaused(bool paused)
 {
 	mPaused = !mPaused;
-	std::cout << mPaused << std::endl;
 }
 
 void Game::run()
 {
-	// TODO make it so some systems work while paused
-
 	while (mRunning && mWindow.isOpen())
 	{
 		mEntities.update();
@@ -102,6 +96,7 @@ void Game::run()
 		sMovement();
 		sEnemySpawner();
 		sCollision();
+		sLifespan();
 		mCurrentFrame++;
 		}
 
@@ -132,7 +127,6 @@ void Game::spawnPlayer()
 
 void Game::spawnEnemy()
 {
-	// TODO Make enemy spawn with config and in bounds of window
 	std::uniform_real_distribution<float> distX(0.0f, static_cast<float>(mWindow.getSize().x));
 	std::uniform_real_distribution<float> distY(0.0f, static_cast<float>(mWindow.getSize().y));
 	std::uniform_real_distribution<float> distSpeed(mEnemyConfig.SMIN, mEnemyConfig.SMAX);
@@ -173,14 +167,19 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& target)
 {
-	// spawn bullet that goes towards mouse position from player position
 	auto bullet = mEntities.addEntity("bullet"); 
+	Vec2f entityTransform(entity->get<CTransform>().pos.x, entity->get<CTransform>().pos.y);
 
-	bullet->add<CTransform>(Vec2f(entity->get<CTransform>().pos.x, entity->get<CTransform>().pos.y), Vec2f(5, 0), 0.0f);
+	float angle = target.angle(entityTransform);
+	Vec2 normalize = target.normalize(entityTransform);
+
+	bullet->add<CTransform>(Vec2f(entity->get<CTransform>().pos.x, entity->get<CTransform>().pos.y), Vec2f(mBulletConfig.S * normalize.x, mBulletConfig.S * normalize.y), angle);
 
 	bullet->add<CCollision>(mBulletConfig.CR);
 
 	bullet->add<CShape>(mBulletConfig.SR, mBulletConfig.V, sf::Color(mBulletConfig.FR, mBulletConfig.FG, mBulletConfig.FB), sf::Color(mBulletConfig.OR, mBulletConfig.OG, mBulletConfig.OB), mBulletConfig.OT);
+
+	bullet->add<CLifespan>(mBulletConfig.L);
 }
 
 void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
@@ -190,7 +189,6 @@ void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
 
 void Game::sMovement()
 {
-	//TODO implement all entity movement
 	if (!player())
 	{
 		return;
@@ -241,11 +239,31 @@ void Game::sLifespan()
 	//TODO implement lifespan for all entities
 	// if entity has lifespand reduce it by one
 	// if no lifespan destroy it
+	for (auto& entity : mEntities.getEntities())
+	{
+		if (entity->has<CLifespan>())
+		{
+			auto& entityLifespan = entity->get<CLifespan>();
+
+			entityLifespan.remaining--;
+
+			float alpha = static_cast<float>(entityLifespan.remaining) / entityLifespan.lifespan;
+
+			sf::Color color = entity->get<CShape>().circle.getFillColor();
+			color.a = 255 * alpha;
+			entity->get<CShape>().circle.setFillColor(color);
+			entity->get<CShape>().circle.setOutlineColor(color);
+
+			if (entityLifespan.remaining <= 0)
+			{
+				entity->destroy();
+			}
+		}
+	}
 }
 
 void Game::sCollision()
 {
-	// Implement all collision
 	if (!player())
 	{
 		return;
@@ -368,6 +386,7 @@ void Game::sUserInput()
 				break;
 			case sf::Keyboard::Scancode::Space:
 				setPaused(mPaused);
+				break;
 			default:
 				break;
 			}
@@ -392,6 +411,13 @@ void Game::sUserInput()
 				break;
 			default:
 				break;
+			}
+		}
+		else if (auto* mouseClick = event->getIf<sf::Event::MouseButtonPressed>())
+		{
+			if (mouseClick->button == sf::Mouse::Button::Left)
+			{
+				spawnBullet(player(), { static_cast<float>(mouseClick->position.x), static_cast<float>(mouseClick->position.y) });
 			}
 		}
 	}

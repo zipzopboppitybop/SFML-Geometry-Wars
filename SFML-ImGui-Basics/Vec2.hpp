@@ -82,6 +82,13 @@ public:
 		return std::sqrt(static_cast<float>(dx * dx + dy * dy));
 	}
 
+	float angle(const Vec2& rhs) const
+	{
+		float diffY = y - rhs.y;
+		float diffX = x - rhs.x;
+		return atan2f(diffY, diffX);
+	}
+
 	Vec2 normalize(const Vec2& rhs) const
 	{
 		float diffY = y - rhs.y;
