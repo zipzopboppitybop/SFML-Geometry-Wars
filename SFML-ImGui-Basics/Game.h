@@ -33,6 +33,7 @@ class Game
 	int mLastEnemySpawnTime = 0;
 	bool mPaused = false;
 	bool mRunning = true;
+	bool mMovement = true;
 	std::mt19937 rng{ std::random_device{}() };
 
 	void init(const std::string& config);

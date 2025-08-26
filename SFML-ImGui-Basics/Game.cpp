@@ -93,7 +93,10 @@ void Game::run()
 
 		if (!mPaused)
 		{
-		sMovement();
+			if (mMovement)
+			{
+				sMovement();
+			}
 		sEnemySpawner();
 		sCollision();
 		sLifespan();
@@ -357,7 +360,21 @@ void Game::sGUI()
 {
 	ImGui::Begin("Geometry Wars");
 
-	ImGui::Text("Stuff Goes Here");
+	if (ImGui::BeginTabBar("MyTabBar"))
+	{
+		if (ImGui::BeginTabItem("Systems"))
+		{
+			ImGui::Checkbox("Movement", &mMovement);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Entities"))
+		{
+			ImGui::Text("Content of Tab 2");
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
+
 
 	ImGui::End();
 }
