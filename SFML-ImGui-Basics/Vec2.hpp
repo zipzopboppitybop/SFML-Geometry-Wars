@@ -81,6 +81,15 @@ public:
 		T dy = y - rhs.y;
 		return std::sqrt(static_cast<float>(dx * dx + dy * dy));
 	}
+
+	Vec2 normalize(const Vec2& rhs) const
+	{
+		float diffY = y - rhs.y;
+		float diffX = x - rhs.x;
+		float length = sqrt((diffY * diffY) + (diffX * diffX));
+
+		return Vec2(diffX / length, diffY / length);
+	}
 };
 
 using Vec2f = Vec2<float>;

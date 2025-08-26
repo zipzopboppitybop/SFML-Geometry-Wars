@@ -99,6 +99,11 @@ void Game::run()
 		sRender();
 
 		mCurrentFrame++;
+
+		if (player() == nullptr)
+		{
+			spawnPlayer();
+		}
 	}
 }
 
@@ -153,6 +158,7 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
 	// spawn number of enemies that equal the vertices of the destroyed enemy
 	// small enemy should be same color and half the size
 	// small enemies are worth double points
+	std::cout << "My father was destroyed!" << std::endl;
 }
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& target)
@@ -175,12 +181,17 @@ void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
 void Game::sMovement()
 {
 	//TODO implement all entity movement
+	if (!player())
+	{
+		return;
+	}
+
 	auto& playerInput = player()->get<CInput>();
 	auto& playerMovement = player()->get<CTransform>();
 	auto& playerCollisionRadius = player()->get<CCollision>().radius;
 	auto windowSize = mWindow.getSize();
 
-	playerMovement.velocity.x = 0; 
+	playerMovement.velocity.x = 0;
 	playerMovement.velocity.y = 0;
 
 	if (playerInput.right == true && playerMovement.pos.x + playerCollisionRadius < windowSize.x)
@@ -202,6 +213,7 @@ void Game::sMovement()
 	{
 		playerMovement.velocity.y = mPlayerConfig.S;
 	}
+	
 
 	for (auto& entity : mEntities.getEntities())
 	{
@@ -224,43 +236,61 @@ void Game::sLifespan()
 void Game::sCollision()
 {
 	// Implement all collision
-	auto windowSize = mWindow.getSize();
+	if (!player())
+	{
+		return;
+	}
 
-	for (auto& entity : mEntities.getEntities())
+	auto windowSize = mWindow.getSize();
+	auto playerTransform = player()->get<CTransform>().pos;
+	auto playerCollsionRadius = player()->get<CCollision>().radius;
+
+	for (auto& bullet : mEntities.getEntities("bullet"))
+	{
+		for (auto& enemy : mEntities.getEntities("enemy"))
+		{
+			float dist = bullet->get<CTransform>().pos.dist(enemy->get<CTransform>().pos);
+
+			if (dist < bullet->get<CCollision>().radius + enemy->get<CCollision>().radius)
+			{
+				bullet->destroy();
+				spawnSmallEnemies(enemy);
+				enemy->destroy();
+			}
+		}
+	}
+
+	for (auto& entity : mEntities.getEntities("enemy"))
 	{
 		auto& transform = entity->get<CTransform>();
 		auto collisionRadius = entity->get<CCollision>().radius;
 
-		if (entity->isActive())
+		if (transform.pos.x - collisionRadius < 0 || transform.pos.x + collisionRadius > windowSize.x)
 		{
-			if (entity->tag() == "enemy")
-			{
-				if (transform.pos.x - collisionRadius < 0 || transform.pos.x + collisionRadius > windowSize.x)
-				{
-					transform.velocity.x *= -1;
-				}
+			transform.velocity.x *= -1;
+		}
 
-				if (transform.pos.y - collisionRadius < 0 || transform.pos.y + collisionRadius > windowSize.y)
-				{
-					transform.velocity.y *= -1;
-				}
-			}
+		if (transform.pos.y - collisionRadius < 0 || transform.pos.y + collisionRadius > windowSize.y)
+		{
+			transform.velocity.y *= -1;
+		}
 
+		float dist = playerTransform.dist(transform.pos);
 
+		if (dist < collisionRadius + playerCollsionRadius)
+		{
+			entity->destroy();
+			player()->destroy();
 		}
 	}
 }
 
 void Game::sEnemySpawner()
 {
-	// TODO implement spawning
-	
-	if (mCurrentFrame - mLastEnemySpawnTime == mEnemyConfig.SI)
+	if (mCurrentFrame - mLastEnemySpawnTime >= mEnemyConfig.SI)
 	{
 		spawnEnemy();
 	}
-	
-
 }
 
 void Game::sGUI()
@@ -274,8 +304,6 @@ void Game::sGUI()
 
 void Game::sRender()
 {
-	// TODO make all entities render
-
 	mWindow.clear();
 
 	for (auto& entity : mEntities.getEntities())
@@ -292,7 +320,6 @@ void Game::sRender()
 		mWindow.draw(shape.circle);
 	}
 
-
 	ImGui::SFML::Render(mWindow);
 
 	mWindow.display();
@@ -305,6 +332,11 @@ void Game::sUserInput()
 		if (event->is<sf::Event::Closed>())
 		{
 			mWindow.close();
+		}
+
+		if (!player())
+		{
+			return;
 		}
 		else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
 		{
