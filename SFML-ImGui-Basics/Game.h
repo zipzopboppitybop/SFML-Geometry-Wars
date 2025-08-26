@@ -8,6 +8,7 @@
 #include "imgui-SFML.h"
 
 #include <fstream>
+#include <random>
 
 struct WindowConfig { unsigned int W, H, FL, FS; };
 struct FontConfig {  unsigned int FS, FR, FG, FB; std::string FF; };
@@ -32,6 +33,7 @@ class Game
 	int mLastEnemySpawnTime = 0;
 	bool mPaused = false;
 	bool mRunning = true;
+	std::mt19937 rng{ std::random_device{}() };
 
 	void init(const std::string& config);
 	void setPaused(bool paused);

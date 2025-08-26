@@ -116,12 +116,18 @@ void Game::spawnPlayer()
 void Game::spawnEnemy()
 {
 	// TODO Make enemy spawn with config and in bounds of window
+	std::uniform_real_distribution<float> distX(0.0f, static_cast<float>(mWindow.getSize().x));
+	std::uniform_real_distribution<float> distY(0.0f, static_cast<float>(mWindow.getSize().y));
+	std::uniform_real_distribution<float> distSpeed(mEnemyConfig.SMIN, mEnemyConfig.SMAX);
+
 	auto entity = mEntities.addEntity("enemy");
 
-	int randomX = rand() % mWindow.getSize().x;
-	int randomY = rand() % mWindow.getSize().y;
+	float randomX = distX(rng);
+	float randomY = distY(rng);
+	float randomSpeedX = distSpeed(rng);
+	float randomSpeedY = distSpeed(rng);
 
-	entity->add<CTransform>(Vec2f(randomX, randomY), Vec2f(0, 0), 0.0f);
+	entity->add<CTransform>(Vec2f(randomX, randomY), Vec2f(randomSpeedX, randomSpeedY), 0.0f);
 
 	entity->add<CShape>(mEnemyConfig.SR, 3, sf::Color(255, 255, 255), sf::Color(mEnemyConfig.OR, mEnemyConfig.OG, mEnemyConfig.OB), mEnemyConfig.OT);
 
