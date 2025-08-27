@@ -35,6 +35,8 @@ class Game
 	bool mRunning = true;
 	bool mMovement = true;
 	bool mLifespan = true;
+	bool mCollision = true;
+	bool mSpawning = true;
 	std::mt19937 rng{ std::random_device{}() };
 
 	void init(const std::string& config);

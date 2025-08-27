@@ -80,7 +80,7 @@ std::shared_ptr<Entity> Game::player()
 
 void Game::setPaused(bool paused)
 {
-	mPaused = !mPaused;
+	mPaused = paused;
 }
 
 void Game::run()
@@ -101,11 +101,16 @@ void Game::run()
 			{
 				sLifespan();
 			}
-		sEnemySpawner();
-		sCollision();
-		mCurrentFrame++;
+			if (mCollision)
+			{
+				sCollision();
+			}
+			if (mSpawning)
+			{
+				sEnemySpawner();
+			}
+			mCurrentFrame++;
 		}
-
 
 		sGUI();
 		sRender();
@@ -369,6 +374,8 @@ void Game::sGUI()
 		{
 			ImGui::Checkbox("Movement", &mMovement);
 			ImGui::Checkbox("Lifespan", &mLifespan);
+			ImGui::Checkbox("Collision", &mCollision);
+			ImGui::Checkbox("Spawning", &mSpawning);
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Entities"))
@@ -425,10 +432,11 @@ void Game::sUserInput()
 		{
 			return;
 		}
-		else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
-		{
-			auto& playerInput = player()->get<CInput>();
 
+		auto& playerInput = player()->get<CInput>();
+
+		if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+		{
 			switch (keyPressed->scancode)
 			{
 			case sf::Keyboard::Scancode::D:
@@ -444,7 +452,7 @@ void Game::sUserInput()
 				playerInput.down = true;
 				break;
 			case sf::Keyboard::Scancode::Space:
-				setPaused(mPaused);
+				setPaused(!mPaused);
 				break;
 			default:
 				break;
@@ -452,8 +460,6 @@ void Game::sUserInput()
 		}
 		else if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
 		{
-			auto& playerInput = player()->get<CInput>();
-
 			switch (keyReleased->scancode)
 			{
 			case sf::Keyboard::Scancode::D:
