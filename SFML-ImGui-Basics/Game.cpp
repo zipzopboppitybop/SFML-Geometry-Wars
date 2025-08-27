@@ -377,6 +377,10 @@ void Game::sGUI()
 			ImGui::Checkbox("Collision", &mCollision);
 			ImGui::Checkbox("Spawning", &mSpawning);
 			ImGui::SliderInt("Spawn", &mEnemyConfig.SI, 2, 200);
+			if (ImGui::Button("Manual Spawn"))
+			{
+				spawnEnemy();
+			}
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Entities"))
