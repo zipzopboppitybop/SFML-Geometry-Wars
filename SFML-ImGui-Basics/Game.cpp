@@ -379,7 +379,7 @@ void Game::sGUI()
 				ImGui::Checkbox("Collision", &mCollision);
 				ImGui::Checkbox("Spawning", &mSpawning);
 				ImGui::SliderInt("Spawn", &mEnemyConfig.SI, 2, 200);
-				if (ImGui::Button("Manual Spawn"))
+				if(ImGui::Button("Manual Spawn"))
 				{
 					spawnEnemy();
 				}
@@ -390,7 +390,56 @@ void Game::sGUI()
 			}
 			if (ImGui::BeginTabItem("Entities"))
 			{
-				ImGui::Text("Content of Tab 2");
+				if (ImGui::CollapsingHeader("Entities"))
+				{
+					auto bullets = mEntities.getEntities("bullet");
+					ImGui::Indent();
+					if (ImGui::TreeNode("Bullets"))
+					{
+						for (auto& bullet : bullets)
+						{
+							auto bulletColor = bullet->get<CShape>().circle.getFillColor();
+							auto bulletPos = bullet->get<CTransform>().pos;
+							int id = bullet->id();
+							const std::string& tag = bullet->tag();
+							float x = bulletPos.x, y = bulletPos.y;
+							ImGui::PushID(id);
+							ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(bulletColor.r, bulletColor.g, bulletColor.b, 1.0f));
+							ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(bulletColor.r, bulletColor.g, bulletColor.b, 0.8f));
+							ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(bulletColor.r, bulletColor.g, bulletColor.b, 0.6f));
+							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 0, 0, 1));
+
+							if (ImGui::Button("D", ImVec2(36, 36)))
+							{
+								bullet->destroy();
+							}
+
+							ImGui::PopStyleColor(4);
+							ImGui::SameLine();
+							ImGui::Text("%d %s (%.0f, %.0f)", id, tag.c_str(), x, y);
+							ImGui::PopID();
+						}
+
+						ImGui::TreePop();
+					}
+					if (ImGui::CollapsingHeader("Enemies"))
+					{
+
+					}
+					if (ImGui::CollapsingHeader("Player"))
+					{
+
+					}
+					if (ImGui::CollapsingHeader("Small Enemies"))
+					{
+
+					}
+					ImGui::Unindent();
+				}
+				if (ImGui::CollapsingHeader("All Entities"))
+				{
+
+				}
 				ImGui::EndTabItem();
 			}
 
