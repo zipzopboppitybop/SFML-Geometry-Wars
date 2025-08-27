@@ -366,33 +366,38 @@ void Game::sEnemySpawner()
 
 void Game::sGUI()
 {
-	ImGui::Begin("Geometry Wars");
-
-	if (ImGui::BeginTabBar("MyTabBar"))
+	if (mShow_imgui)
 	{
-		if (ImGui::BeginTabItem("Systems"))
+		ImGui::Begin("Geometry Wars");
+
+		if (ImGui::BeginTabBar("MyTabBar"))
 		{
-			ImGui::Checkbox("Movement", &mMovement);
-			ImGui::Checkbox("Lifespan", &mLifespan);
-			ImGui::Checkbox("Collision", &mCollision);
-			ImGui::Checkbox("Spawning", &mSpawning);
-			ImGui::SliderInt("Spawn", &mEnemyConfig.SI, 2, 200);
-			if (ImGui::Button("Manual Spawn"))
+			if (ImGui::BeginTabItem("Systems"))
 			{
-				spawnEnemy();
+				ImGui::Checkbox("Movement", &mMovement);
+				ImGui::Checkbox("Lifespan", &mLifespan);
+				ImGui::Checkbox("Collision", &mCollision);
+				ImGui::Checkbox("Spawning", &mSpawning);
+				ImGui::SliderInt("Spawn", &mEnemyConfig.SI, 2, 200);
+				if (ImGui::Button("Manual Spawn"))
+				{
+					spawnEnemy();
+				}
+				ImGui::Checkbox("GUI", &mShow_imgui);
+
+				ImGui::EndTabItem();
 			}
-			ImGui::EndTabItem();
+			if (ImGui::BeginTabItem("Entities"))
+			{
+				ImGui::Text("Content of Tab 2");
+				ImGui::EndTabItem();
+			}
+
+			ImGui::EndTabBar();
 		}
-		if (ImGui::BeginTabItem("Entities"))
-		{
-			ImGui::Text("Content of Tab 2");
-			ImGui::EndTabItem();
-		}
-		ImGui::EndTabBar();
+
+		ImGui::End();
 	}
-
-
-	ImGui::End();
 }
 
 void Game::sRender()
@@ -458,6 +463,9 @@ void Game::sUserInput()
 				break;
 			case sf::Keyboard::Scancode::Space:
 				setPaused(!mPaused);
+				break;
+			case sf::Keyboard::Scancode::Z:
+				mShow_imgui = !mShow_imgui;
 				break;
 			default:
 				break;
