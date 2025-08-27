@@ -454,8 +454,34 @@ void Game::sGUI()
 
 						ImGui::TreePop();
 					}
-					if (ImGui::CollapsingHeader("Player"))
+					if (ImGui::TreeNode("Player"))
 					{
+						if (player())
+						{
+							auto playerColor = player()->get<CShape>().circle.getFillColor();
+							auto playerPos = player()->get<CTransform>().pos;
+							int id = player()->id();
+							const std::string& tag = player()->tag();
+							float x = playerPos.x, y = playerPos.y;
+
+							ImGui::PushID(id);
+							ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(playerColor.r / 255.0f, playerColor.g / 255.0f, playerColor.b / 255.0f, 1.0f));
+							ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(playerColor.r / 255.0f, playerColor.g / 255.0f, playerColor.b / 255.0f, 0.8f));
+							ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(playerColor.r / 255.0f, playerColor.g / 255.0f, playerColor.b / 255.0f, 0.6f));
+							ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
+
+							if (ImGui::Button("D", ImVec2(36, 36)))
+							{
+								player()->destroy();
+							}
+
+							ImGui::PopStyleColor(4);
+							ImGui::SameLine();
+							ImGui::Text("%d %s (%.0f, %.0f)", id, tag.c_str(), x, y);
+							ImGui::PopID();
+						}
+
+						ImGui::TreePop();
 					}
 					if (ImGui::TreeNode("Small Enemies"))
 					{
