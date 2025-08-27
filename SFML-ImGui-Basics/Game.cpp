@@ -384,6 +384,7 @@ void Game::sGUI()
 					spawnEnemy();
 				}
 				ImGui::Checkbox("GUI", &mShow_imgui);
+				ImGui::Checkbox("Rendering", &mRendering);
 
 				ImGui::EndTabItem();
 			}
@@ -404,21 +405,25 @@ void Game::sRender()
 {
 	mWindow.clear();
 
-	for (auto& entity : mEntities.getEntities())
+	if (mRendering)
 	{
-		auto& transform = entity->get<CTransform>();
-		auto& shape = entity->get<CShape>();
+		for (auto& entity : mEntities.getEntities())
+		{
+			auto& transform = entity->get<CTransform>();
+			auto& shape = entity->get<CShape>();
 
-		shape.circle.setPosition(transform.pos);
-		transform.angle += 1.0f;
-		shape.circle.setRotation(sf::degrees(transform.angle));
+			shape.circle.setPosition(transform.pos);
+			transform.angle += 1.0f;
+			shape.circle.setRotation(sf::degrees(transform.angle));
 
-		mWindow.draw(shape.circle);
+			mWindow.draw(shape.circle);
+		}
+
+		mWindow.draw(mText);
 	}
 
 	ImGui::SFML::Render(mWindow);
 
-	mWindow.draw(mText);
 	mWindow.display();
 }
 

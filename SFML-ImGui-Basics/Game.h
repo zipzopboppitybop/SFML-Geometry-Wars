@@ -38,6 +38,7 @@ class Game
 	bool mCollision = true;
 	bool mSpawning = true;
 	bool mShow_imgui = true;
+	bool mRendering = true;
 	std::mt19937 rng{ std::random_device{}() };
 
 	void init(const std::string& config);
