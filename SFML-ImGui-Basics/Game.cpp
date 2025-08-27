@@ -376,6 +376,7 @@ void Game::sGUI()
 			ImGui::Checkbox("Lifespan", &mLifespan);
 			ImGui::Checkbox("Collision", &mCollision);
 			ImGui::Checkbox("Spawning", &mSpawning);
+			ImGui::SliderInt("Spawn", &mEnemyConfig.SI, 2, 200);
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Entities"))
