@@ -457,9 +457,36 @@ void Game::sGUI()
 					if (ImGui::CollapsingHeader("Player"))
 					{
 					}
-					if (ImGui::CollapsingHeader("Small Enemies"))
+					if (ImGui::TreeNode("Small Enemies"))
 					{
+						for (auto& enemy : enemies)
+						{
+							if (enemy->get<CCollision>().radius != mEnemyConfig.CR)
+							{
+								auto enemyColor = enemy->get<CShape>().circle.getFillColor();
+								auto enemyPos = enemy->get<CTransform>().pos;
+								int id = enemy->id();
+								const std::string& tag = enemy->tag();
+								float x = enemyPos.x, y = enemyPos.y;
+								ImGui::PushID(id);
+								ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(enemyColor.r / 255.0f, enemyColor.g / 255.0f, enemyColor.b / 255.0f, 1.0f));
+								ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(enemyColor.r / 255.0f, enemyColor.g / 255.0f, enemyColor.b / 255.0f, 0.8f));
+								ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(enemyColor.r / 255.0f, enemyColor.g / 255.0f, enemyColor.b / 255.0f, 0.6f));
+								ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 1));
 
+								if (ImGui::Button("D", ImVec2(36, 36)))
+								{
+									enemy->destroy();
+								}
+
+								ImGui::PopStyleColor(4);
+								ImGui::SameLine();
+								ImGui::Text("%d %s (%.0f, %.0f)", id, tag.c_str(), x, y);
+								ImGui::PopID();
+							}
+						}
+
+						ImGui::TreePop();
 					}
 					ImGui::Unindent();
 				}
