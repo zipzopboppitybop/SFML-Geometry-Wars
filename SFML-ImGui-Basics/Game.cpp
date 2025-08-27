@@ -458,7 +458,7 @@ void Game::sGUI()
 					{
 						if (player())
 						{
-							auto playerColor = player()->get<CShape>().circle.getFillColor();
+							auto playerColor = player()->get<CShape>().circle.getOutlineColor();
 							auto playerPos = player()->get<CTransform>().pos;
 							int id = player()->id();
 							const std::string& tag = player()->tag();
@@ -515,10 +515,6 @@ void Game::sGUI()
 						ImGui::TreePop();
 					}
 					ImGui::Unindent();
-				}
-				if (ImGui::CollapsingHeader("All Entities"))
-				{
-
 				}
 				ImGui::EndTabItem();
 			}
@@ -598,7 +594,7 @@ void Game::sUserInput()
 			case sf::Keyboard::Scancode::Space:
 				setPaused(!mPaused);
 				break;
-			case sf::Keyboard::Scancode::Z:
+			case sf::Keyboard::Scancode::Grave:
 				mShow_imgui = !mShow_imgui;
 				break;
 			default:
