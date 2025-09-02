@@ -135,12 +135,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Dev\ImGui-SFML\Source\imgui-SFML.cpp" />
-    <ClCompile Include="..\..\..\Dev\ImGui\Source\imgui.cpp" />
-    <ClCompile Include="..\..\..\Dev\ImGui\Source\imgui_demo.cpp" />
-    <ClCompile Include="..\..\..\Dev\ImGui\Source\imgui_draw.cpp" />
-    <ClCompile Include="..\..\..\Dev\ImGui\Source\imgui_tables.cpp" />
-    <ClCompile Include="..\..\..\Dev\ImGui\Source\imgui_widgets.cpp" />
+    <ClCompile Include="..\ImGui-SFML\Source\imgui-SFML.cpp" />
+    <ClCompile Include="..\ImGui\Source\imgui.cpp" />
+    <ClCompile Include="..\ImGui\Source\imgui_demo.cpp" />
+    <ClCompile Include="..\ImGui\Source\imgui_draw.cpp" />
+    <ClCompile Include="..\ImGui\Source\imgui_tables.cpp" />
+    <ClCompile Include="..\ImGui\Source\imgui_widgets.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
